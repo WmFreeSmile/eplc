@@ -1,0 +1,31 @@
+name: TestBuildEpl
+
+on:
+#    workflow_dispatch:
+    [workflow_dispatch,push]
+
+permissions:
+  contents: read
+  
+jobs:
+    test_build:
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Install EPL
+              run: git clone https://github.com/WmFreeSmile/elbuild.git
+            - name: Make
+              run: |
+                    mkdir target
+                    mkdir .\target\lib
+                    
+                    .\elbuild\eplc.exe .\src\eplc_dll.e /o .\target\lib\eplc.dll /bm /set_epl_root .\elbuild\
+                    .\elbuild\eplc.exe .\src\eplc_exe.e /o .\target\eplc.exe /bm /set_epl_root .\elbuild\
+                    
+            - name: Upload result
+              uses: actions/upload-artifact@v4
+              with:
+                name: test
+                path: ${{ github.workspace }}\target
+                
